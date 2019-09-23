@@ -1,0 +1,38 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.service.type: nodeport
+    kompose.version: 1.17.0 (a74acad)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: s3-local
+  name: s3-local
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: s3-local
+    spec:
+      containers:
+      - args:
+        - server
+        - --address
+        - :33000
+        - /data
+        env:
+        - name: MINIO_ACCESS_KEY
+          value: GNV3SAHAHA3DOT99GQII
+        - name: MINIO_SECRET_KEY
+          value: ZmvMwngonaDK5ymlCd6ptaalDdJsCn3aSSxASPaZ
+        image: farrion/minio_base:latest
+        name: s3-local
+        ports:
+        - containerPort: 33000
+        resources: {}
+      restartPolicy: Always
+status: {}

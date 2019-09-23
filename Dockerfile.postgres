@@ -1,0 +1,12 @@
+FROM postgres:11
+
+ENV POSTGRES_USER coreapi
+ENV POSTGRES_PASSWORD coreapi
+ENV POSTGRES_DATABASE coreapi
+
+RUN mkdir -p /tmp/data
+
+COPY ./data/postgres-data/pgdump.sql   /var/lib/pgsql/data/pgdump.sql
+COPY ./data/postgres-data/restore.sh /docker-entrypoint-initdb.d/restore.sh
+
+EXPOSE 5432

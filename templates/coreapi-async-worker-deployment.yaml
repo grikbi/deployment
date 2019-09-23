@@ -1,0 +1,68 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -o templates1
+    kompose.version: 1.17.0 (a74acad)
+    kompose.service.type: nodeport
+  creationTimestamp: null
+  labels:
+    io.kompose.service: coreapi-async-worker
+  name: coreapi-async-worker
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: coreapi-async-worker
+    spec:
+      containers:
+      - command:
+        - /bin/entrypoint.sh
+        env:
+        - name: API_BACKBONE_SERVICE_PORT
+          value: "8000"
+        - name: API_BACKBONE_SERVICE_TIMEOUT
+          value: "60"
+        - name: BAYESIAN_GREMLIN_HTTP_SERVICE_HOST
+          value: gremlin-http
+        - name: BAYESIAN_GREMLIN_HTTP_SERVICE_PORT
+          value: "8182"
+        - name: CLASS_TYPE
+          value: gevent
+        - name: DEPLOYMENT_PREFIX
+          value: test
+        - name: FLASK_LOGGING_LEVEL
+          value: DEBUG
+        - name: LICENSE_SERVICE_HOST
+          value: license-insights
+        - name: LICENSE_SERVICE_PORT
+          value: "6162"
+        - name: MAVEN_SERVICE_HOST
+          value: maven-insights
+        - name: NPM_SERVICE_HOST
+          value: npm-insights
+        - name: NUMBER_WORKER_PROCESS
+          value: "2"
+        - name: PGM_SERVICE_HOST
+          value: kronos
+        - name: PGM_SERVICE_PORT
+          value: "6003"
+        - name: PYPI_SERVICE_PORT
+          value: "6006"
+        - name: NPM_SERVICE_PORT
+          value: "6005"
+        - name: PYPI_SERVICE_HOST
+          value: pypi-insights
+        - name: SENTRY_DSN
+        - name: WORKER_ADMINISTRATION_REGION
+          value: api
+        image: farrion/coreapi-async-worker
+        name: coreapi-async-worker
+        ports:
+        - containerPort: 8000
+        resources: {}
+      restartPolicy: Always
+status: {}

@@ -1,0 +1,33 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -o templates
+    kompose.service.type: nodeport
+    kompose.version: 1.17.0 (a74acad)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: license-insights
+  name: license-insights
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: license-insights
+    spec:
+      containers:
+      - command:
+        - /bin/entrypoint.sh
+        env:
+        - name: SERVICE_PORT
+          value: "6162"
+        image: farrion/license-insights:latest
+        name: license-insights
+        ports:
+        - containerPort: 6162
+        resources: {}
+      restartPolicy: Always
+status: {}

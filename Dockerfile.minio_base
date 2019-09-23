@@ -1,0 +1,9 @@
+FROM minio/minio
+
+COPY ./data/minio-data/ /data/
+
+ENV MINIO_ACCESS_KEY=GNV3SAHAHA3DOT99GQII
+ENV MINIO_SECRET_KEY=ZmvMwngonaDK5ymlCd6ptaalDdJsCn3aSSxASPaZ
+
+EXPOSE 33000
+CMD ["server", "--address", ":33000", "/data"]

@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -o templates1
+    kompose.service.type: nodeport
+    kompose.version: 1.17.0 (a74acad)
+    kompose.volume.size: 150Mi
+  creationTimestamp: null
+  labels:
+    io.kompose.service: pypi-insights
+  name: pypi-insights
+spec:
+  ports:
+  - name: "6006"
+    port: 6006
+    targetPort: 6006
+  selector:
+    io.kompose.service: pypi-insights
+  type: NodePort
+status:
+  loadBalancer: {}

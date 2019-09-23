@@ -1,0 +1,35 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -o templates
+    kompose.service.type: nodeport
+    kompose.version: 1.17.0 (a74acad)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: gremlin-http
+  name: gremlin-http
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: gremlin-http
+    spec:
+      containers:
+      - command:
+        - /bin/entrypoint-local.sh
+        env:
+        - name: DEBUG_GRAPH_METRICS
+          value: "1"
+        - name: REST
+          value: "1"
+        image: farrion/bayesian-gremlin
+        name: gremlin-http
+        ports:
+        - containerPort: 8182
+        resources: {}
+      restartPolicy: Always
+status: {}

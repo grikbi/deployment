@@ -1,0 +1,146 @@
+version: '2'
+
+services:
+  dynamodb:
+    image: farrion/dynamodb_base:latest
+    command: -jar DynamoDBLocal.jar -sharedDb -dbPath /home/dynamodblocal/data
+    network_mode: bridge
+    ports:
+      - 8000:8000
+    container_name: dynamodb
+    labels:
+      kompose.service.type: nodeport
+
+  gremlin-http:
+    image: farrion/bayesian-gremlin:latest
+    entrypoint: /bin/entrypoint-local.sh
+    network_mode: bridge
+    environment:
+      REST: 1
+      DEBUG_GRAPH_METRICS: 1
+    ports:
+      - 8182:8182
+    container_name: gremlin-http
+    depends_on:
+      - dynamodb
+    links:
+      - dynamodb
+    labels: 
+      kompose.service.type: nodeport
+
+  license-insights:
+    image: farrion/license-insights:latest
+    entrypoint: /bin/entrypoint.sh
+    network_mode: bridge
+    environment:
+      SERVICE_PORT: 6162
+    ports:
+      - 6162:6162
+    container_name: license-insights
+    labels: 
+      kompose.service.type: nodeport
+    
+  s3-local:
+    image: farrion/minio_base:latest
+    command:
+        - server
+        - --address
+        - ":33000"
+        - /data
+    container_name: s3-local
+    labels: 
+      kompose.service.type: nodeport
+    network_mode: bridge
+    ports:
+      - 33000:33000
+    environment:
+      MINIO_ACCESS_KEY: GNV3SAHAHA3DOT99GQII
+      MINIO_SECRET_KEY: ZmvMwngonaDK5ymlCd6ptaalDdJsCn3aSSxASPaZ
+    
+  pypi-insights:
+    image: farrion/pypi-insights:latest
+    # build:
+      # context: pypi-insights
+    entrypoint: /bin/entrypoint.sh
+    environment:
+      AWS_S3_ACCESS_KEY_ID: GNV3SAHAHA3DOT99GQII
+      AWS_S3_SECRET_ACCESS_KEY: ZmvMwngonaDK5ymlCd6ptaalDdJsCn3aSSxASPaZ
+      AWS_S3_ENDPOINT_URL: http://s3-local:33000
+      SERVICE_PORT: 6006
+      SERVICE_TIMEOUT: 30
+      LOCAL_ACCESS: "true"
+      USE_CLOUD_SERVICES: "false"
+    ports:
+    - 6006:6006 
+    network_mode: bridge
+    links:
+      - s3-local
+    labels: 
+      kompose.service.type: nodeport
+      kompose.volume.size: 150Mi
+    depends_on:
+      - s3-local
+
+  npm-insights:
+    image: farrion/npm-insights:latest
+    # build:
+      # context: npm-insights
+    entrypoint: /bin/entrypoint.sh
+    environment:
+      AWS_S3_ACCESS_KEY_ID: GNV3SAHAHA3DOT99GQII
+      AWS_S3_SECRET_ACCESS_KEY: ZmvMwngonaDK5ymlCd6ptaalDdJsCn3aSSxASPaZ
+      AWS_S3_ENDPOINT_URL: http://s3-local:33000
+      SERVICE_PORT: 6005
+      SERVICE_TIMEOUT: 30
+      LOCAL_ACCESS: "true"
+      USE_CLOUD_SERVICES: "false"
+    ports:
+    - 6005:6005 
+    network_mode: bridge
+    links:
+      - s3-local
+    labels: 
+      kompose.service.type: nodeport
+      kompose.volume.size: 150Mi
+    depends_on:
+      - s3-local
+
+  coreapi-async-worker:
+    image: farrion/coreapi-async-worker:latest
+    # build:
+      # context: coreapi-async-worker/
+    entrypoint:
+      - /bin/entrypoint.sh
+    environment:
+      BAYESIAN_GREMLIN_HTTP_SERVICE_HOST: "gremlin-http"
+      BAYESIAN_GREMLIN_HTTP_SERVICE_PORT: "8182"
+      LICENSE_SERVICE_HOST: "license-insights"
+      LICENSE_SERVICE_PORT: "6162"
+      MAVEN_SERVICE_HOST: "maven-insights"
+      NPM_SERVICE_HOST: "npm-insights"
+      PYPI_SERVICE_HOST: "pypi-insights"
+      PGM_SERVICE_HOST: "kronos"
+      PGM_SERVICE_PORT: "6006"
+      PGBOUNCER_SERVICE_HOST: "localhost"
+      PGBOUNCER_SERVICE_PORT: "5432"
+      POSTGRESQL_USER: "coreapi"
+      POSTGRESQL_PASSWORD: "coreapi"
+      POSTGRESQL_DATABASE: "coreapi"
+      API_BACKBONE_SERVICE_TIMEOUT: "60"
+      API_BACKBONE_SERVICE_PORT: "8000"
+      NUMBER_WORKER_PROCESS: "2"
+      CLASS_TYPE: "gevent"
+      FLASK_LOGGING_LEVEL: "DEBUG"
+      SENTRY_DSN: ""
+      DEPLOYMENT_PREFIX: "test"
+      WORKER_ADMINISTRATION_REGION: "api"
+    ports:
+      - "9000:8000"
+    network_mode: bridge
+    labels: 
+      kompose.service.type: nodeport
+    links:
+      - license-insights
+      - pypi-insights
+      - gremlin-http
+      - npm-insights

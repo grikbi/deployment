@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: gremlin-http
+spec:
+  ports:
+  - name: "8182"
+    port: 8182
+    targetPort: 8182
+  selector:
+    io.kompose.service: gremlin-http
+  type: NodePort
+status:
+  loadBalancer: {}

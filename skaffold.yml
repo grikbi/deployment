@@ -1,0 +1,54 @@
+apiVersion: skaffold/v1beta13
+kind: Config
+build:
+  artifacts:
+    - image: farrion/license-insights
+      context: ./license-insights/
+      sync: # Files to sync either manually or implicitly (works with dockerfiles)
+        infer: []
+    - image: farrion/pypi-insights
+      context: ./pypi-insights/
+      sync: # Files to sync either manually or implicitly (works with dockerfiles)
+        infer: []
+    - image: farrion/npm-insights
+      context: ./npm-insights/
+      sync: # Files to sync either manually or implicitly (works with dockerfiles)
+        infer: []
+    - image: farrion/dynamodb_base
+      context: .
+      docker:
+        dockerfile: Dockerfile.dynamodb_base
+    - image: samuzzal/coreapi-postgres
+      context: .
+      docker:
+        dockerfile: Dockerfile.postgres
+    - image: farrion/coreapi-async-worker
+      context: ./coreapi-async-worker/
+      sync: # Files to sync either manually or implicitly (works with dockerfiles)
+        infer: []
+    - image: farrion/minio_base
+      context: .
+      docker:
+        dockerfile: Dockerfile.minio_base
+  local:
+    push: false # Do not push to remote registry
+    useDockerCLI: false
+    useBuildkit: false
+deploy:
+  kubectl: # Deploy type kubectl
+    manifests: # Deploy the manifests to minikube
+      - ./templates/license-insights*.yaml 
+      - ./templates/s3-local*.yaml
+      - ./templates/pypi-insights*.yaml
+      - ./templates/npm-insights*.yaml
+      - ./templates/coreapi-async-worker*.yaml
+      - ./templates/dynamodb*.yaml
+      - ./templates/pypi-insights*.yaml
+      - ./templates/gremlin-http*.yaml
+      - ./templates/postgres-*.yaml
+# portForward:
+#   - resourceType: service
+#     resourceName: license-insights # Port forwarding of license-insights of farrion namespace
+#     namespace: farrion
+#     port: 6162
+#     localPort: 6162

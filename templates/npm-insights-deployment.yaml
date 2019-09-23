@@ -1,0 +1,43 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.service.type: nodeport
+  creationTimestamp: null
+  labels:
+    io.kompose.service: npm-insights
+  name: npm-insights
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: npm-insights
+    spec:
+      containers:
+      - command:
+        - /bin/entrypoint.sh
+        env:
+        - name: AWS_S3_ACCESS_KEY_ID
+          value: GNV3SAHAHA3DOT99GQII
+        - name: AWS_S3_ENDPOINT_URL
+          value: http://s3-local:33000
+        - name: AWS_S3_SECRET_ACCESS_KEY
+          value: ZmvMwngonaDK5ymlCd6ptaalDdJsCn3aSSxASPaZ
+        - name: LOCAL_ACCESS
+          value: "true"
+        - name: SERVICE_PORT
+          value: "6005"
+        - name: SERVICE_TIMEOUT
+          value: "30"
+        - name: USE_CLOUD_SERVICES
+          value: "false"
+        image: farrion/npm-insights:latest
+        name: npm-insights
+        ports:
+        - containerPort: 6005
+        resources: {}
+      restartPolicy: Always
+status: {}

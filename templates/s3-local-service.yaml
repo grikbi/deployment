@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -o templates1
+    kompose.service.type: nodeport
+    kompose.version: 1.17.0 (a74acad)
+    kompose.volume.size: 150Mi
+  creationTimestamp: null
+  labels:
+    io.kompose.service: s3-local
+  name: s3-local
+spec:
+  ports:
+  - name: "33000"
+    port: 33000
+    targetPort: 33000
+  selector:
+    io.kompose.service: s3-local
+  type: NodePort
+status:
+  loadBalancer: {}

@@ -1,0 +1,6 @@
+FROM amazon/dynamodb-local
+
+RUN mkdir /home/dynamodblocal/data
+COPY ./data/dynamodb-data/shared-local-instance.db /home/dynamodblocal/data/shared-local-instance.db
+CMD ["-jar", "DynamoDBLocal.jar", "-sharedDb", "-dbPath", "/home/dynamodblocal/data/"]
+EXPOSE 8000
